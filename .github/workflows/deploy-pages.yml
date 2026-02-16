@@ -22,6 +22,14 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Check for web directory
+        run: |
+          if [ ! -d web ]; then
+            echo "::error::The 'web' folder is missing. Add and push it with: git add web && git commit -m 'Add web site' && git push"
+            ls -la
+            exit 1
+          fi
+
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
