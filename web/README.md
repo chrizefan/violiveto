@@ -12,16 +12,17 @@ No server or build step required; everything runs locally in the browser.
 
 ## Hosting on GitHub Pages
 
-The repo includes a workflow that deploys the `web/` folder to GitHub Pages on every push to `main`.
+The repo includes a workflow that deploys the `web/` folder to a **gh-pages** branch on every push to `main`. GitHub Pages then serves the site from that branch.
 
 1. **Push the repo to GitHub** (if you haven't already).
 2. In the repo, go to **Settings → Pages**.
-3. Under **Build and deployment**, set **Source** to **GitHub Actions**.
-4. Push a commit to the `main` branch (or run the "Deploy to GitHub Pages" workflow from the **Actions** tab). The workflow will run and publish the site.
+3. Under **Build and deployment**, set **Source** to **Deploy from a branch**.
+4. Choose branch **gh-pages**, folder **/ (root)**, then **Save**.
+5. Push a commit to `main` (or run the "Deploy to gh-pages branch" workflow from the **Actions** tab). The workflow will create/update the `gh-pages` branch and GitHub will publish the site.
 
-The site will be at **`https://<username>.github.io/<repo-name>/`** (e.g. `https://yourname.github.io/violiveto/`). You can add a custom domain under **Settings → Pages** if you want.
+The site will be at **`https://<username>.github.io/<repo-name>/`** (e.g. `https://chrizefan.github.io/violiveto/`). You can add a custom domain under **Settings → Pages** if you want.
 
-If your default branch is `master` instead of `main`, change the workflow trigger in `.github/workflows/deploy-pages.yml` from `branches: [main]` to `branches: [master]`, or rename the branch to `main`.
+If your default branch is `master` instead of `main`, change the workflow trigger in `.github/workflows/deploy-gh-pages-branch.yml` from `branches: [main]` to `branches: [master]`, or rename the branch to `main`.
 
 ## What's inside
 
