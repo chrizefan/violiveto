@@ -1,0 +1,860 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Violiveto | Agriturismo & property dashboard</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/marked/lib/marked.umd.js"></script>
+  <script src="research-docs.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #f7f6f3;
+      --card: #ffffff;
+      --text: #334155;
+      --text-muted: #64748b;
+      --accent: #7c6b9e;
+      --accent-soft: #ebe9e4;
+      --border: #e2e0db;
+      --pastel-mint: #e8f5f0;
+      --pastel-lavender: #ebe9e4;
+      --pastel-blush: #fdf2f0;
+    }
+    body { font-family: 'Lato', sans-serif; background-color: var(--bg); color: var(--text); }
+    h1, h2, h3, h4, .serif { font-family: 'Playfair Display', serif; }
+    .nav-item.active { background-color: var(--accent-soft); border-radius: 8px; font-weight: 600; color: var(--accent); }
+    .chart-container { position: relative; width: 100%; max-width: 600px; margin: 0 auto; height: 300px; }
+    @media (min-width: 768px) { .chart-container { height: 350px; } }
+    .timeline-line { position: absolute; left: 20px; top: 0; bottom: 0; width: 2px; background: var(--border); z-index: 0; }
+    [data-justification] { cursor: help; }
+    .timeline-task-done { opacity: 0.7; text-decoration: line-through; }
+    .timeline-task-done label { color: var(--text-muted); }
+    .research-content { color: var(--text); }
+    .research-content h1 { font-size: 1.75rem; font-weight: 700; margin-top: 1.5rem; margin-bottom: 0.75rem; font-family: 'Playfair Display', serif; }
+    .research-content h2 { font-size: 1.35rem; font-weight: 700; margin-top: 1.25rem; margin-bottom: 0.5rem; font-family: 'Playfair Display', serif; border-bottom: 1px solid var(--border); padding-bottom: 0.25rem; }
+    .research-content h3 { font-size: 1.15rem; font-weight: 700; margin-top: 1rem; margin-bottom: 0.5rem; }
+    .research-content p { margin-bottom: 0.75rem; line-height: 1.6; }
+    .research-content ul, .research-content ol { margin-bottom: 0.75rem; padding-left: 1.5rem; }
+    .research-content li { margin-bottom: 0.25rem; }
+    .research-content table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: 0.9rem; }
+    .research-content th, .research-content td { border: 1px solid var(--border); padding: 0.5rem 0.75rem; text-align: left; }
+    .research-content th { background: var(--pastel-lavender); font-weight: 600; }
+    .research-content tr:nth-child(even) { background: var(--bg); }
+    .research-content a { color: var(--accent); text-decoration: underline; }
+    .research-content a:hover { text-decoration: none; }
+    .research-content blockquote { border-left: 4px solid var(--accent); padding-left: 1rem; margin: 1rem 0; color: var(--text-muted); }
+    .research-content code { background: var(--pastel-lavender); padding: 0.15rem 0.4rem; border-radius: 4px; font-size: 0.9em; }
+    .research-content pre { background: var(--pastel-lavender); padding: 1rem; border-radius: 8px; overflow-x: auto; margin: 1rem 0; }
+    .research-content pre code { background: none; padding: 0; }
+    .research-content hr { border: none; border-top: 1px solid var(--border); margin: 1.5rem 0; }
+    .research-content strong { font-weight: 700; }
+    .research-content em { font-style: italic; }
+  </style>
+</head>
+<body class="min-h-screen">
+  <!-- Header with logo -->
+  <header class="bg-[var(--card)] border-b border-[var(--border)] shadow-sm sticky top-0 z-30">
+    <div class="max-w-7xl mx-auto px-4 py-4 flex flex-col sm:flex-row items-center justify-between gap-4">
+      <a href="#" onclick="switchView('overview'); return false;" class="flex items-center gap-3">
+        <img src="violiveto.jpeg" alt="Violiveto" class="h-14 w-auto object-contain" />
+        <div>
+          <h1 class="text-xl sm:text-2xl font-bold text-[var(--text)] serif">Violiveto</h1>
+          <p class="text-xs text-[var(--text-muted)] uppercase tracking-wide">Agriturismo & property dashboard</p>
+        </div>
+      </a>
+      <nav class="flex flex-wrap gap-1 sm:gap-2">
+        <button type="button" onclick="switchView('overview')" id="nav-overview" class="nav-item px-4 py-2 rounded-lg text-[var(--text)] hover:bg-[var(--accent-soft)] transition">Overview</button>
+        <button type="button" onclick="switchView('timeline')" id="nav-timeline" class="nav-item px-4 py-2 rounded-lg text-[var(--text)] hover:bg-[var(--accent-soft)] transition">Master Plan</button>
+        <button type="button" onclick="switchView('financial')" id="nav-financial" class="nav-item px-4 py-2 rounded-lg text-[var(--text)] hover:bg-[var(--accent-soft)] transition">Financial Planning</button>
+        <button type="button" onclick="switchView('research')" id="nav-research" class="nav-item px-4 py-2 rounded-lg text-[var(--text)] hover:bg-[var(--accent-soft)] transition">Research</button>
+      </nav>
+    </div>
+  </header>
+
+  <main class="max-w-7xl mx-auto px-4 py-8">
+    <!-- Overview (landing) -->
+    <section id="view-overview" class="hidden space-y-8">
+      <div>
+        <h2 class="text-3xl font-bold text-[var(--text)] serif">Overview</h2>
+        <p class="text-[var(--text-muted)] mt-1">Podere Cerreto → Agriturismo Violiveto. Castel Viscardo (Orvieto), Umbria. This dashboard summarises the property, immigration, negotiation terms, and links to financials and the master plan.</p>
+      </div>
+
+      <div class="rounded-xl border border-[var(--border)] bg-[var(--card)] shadow-sm p-5">
+        <h3 class="text-lg font-bold text-[var(--text)] serif mb-2">Key figures</h3>
+        <ul class="grid gap-2 sm:grid-cols-2 lg:grid-cols-4 text-sm text-[var(--text)]">
+          <li><strong>Total to close:</strong> €1,124,600 – €1,134,100</li>
+          <li><strong>Total CAPEX (revitalization):</strong> €534,500</li>
+          <li><strong>Prima Casa deadline:</strong> Residency in Castel Viscardo within 18 months of purchase (Dec 2027)</li>
+          <li><strong>Purchase price:</strong> €1,000,000 (furniture excluded)</li>
+        </ul>
+      </div>
+
+      <div class="rounded-xl border border-[var(--border)] bg-[var(--card)] shadow-sm p-5">
+        <h3 class="text-lg font-bold text-[var(--text)] serif mb-3">Property & land</h3>
+        <p class="text-sm text-[var(--text)] mb-3"><strong>Address:</strong> Podere Cerreto 7, Località Cerreto, Castel Viscardo (TR), Umbria.</p>
+        <p class="text-sm text-[var(--text-muted)] mb-3">Approximately 24 hectares; built area ~530 m² (main house + annex). Main house: two A/2 cadastral units (144 m² + 216 m²), 7 bedrooms, 7 bathrooms — configured for 4 guest units and owner residence. Annex: 140 m², Category C/4 (warehouse), conversion to residential by seller.</p>
+        <div class="overflow-x-auto mb-3">
+          <table class="w-full text-sm border-collapse">
+            <thead><tr class="bg-[var(--pastel-lavender)]"><th class="text-left p-2 border border-[var(--border)]">Category</th><th class="text-left p-2 border border-[var(--border)]">Usage</th><th class="text-right p-2 border border-[var(--border)]">Area (m²)</th></tr></thead>
+            <tbody>
+              <tr><td class="p-2 border border-[var(--border)]">A/2</td><td class="p-2 border border-[var(--border)]">Residential (first floor)</td><td class="p-2 border border-[var(--border)] text-right">144</td></tr>
+              <tr><td class="p-2 border border-[var(--border)]">A/2</td><td class="p-2 border border-[var(--border)]">Residential (ground floor)</td><td class="p-2 border border-[var(--border)] text-right">216</td></tr>
+              <tr><td class="p-2 border border-[var(--border)]">C/4</td><td class="p-2 border border-[var(--border)]">Annex (sports/gym/warehouse)</td><td class="p-2 border border-[var(--border)] text-right">140</td></tr>
+              <tr><td class="p-2 border border-[var(--border)]">C/2</td><td class="p-2 border border-[var(--border)]">Storage</td><td class="p-2 border border-[var(--border)] text-right">91</td></tr>
+              <tr><td class="p-2 border border-[var(--border)]">C/6</td><td class="p-2 border border-[var(--border)]">Stables/garage</td><td class="p-2 border border-[var(--border)] text-right">76</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="text-sm text-[var(--text-muted)]">Zoning: Zone E (agricultural), Zone E3 (wooded, 13 ha). CDU from Comune; hydrogeological constraint on parcels requires geological report for major works. RERU eligibility supports forest management grants. Documentation: Visura, CDU, APE, Agibilità.</p>
+      </div>
+
+      <div class="rounded-xl border border-[var(--border)] bg-[var(--card)] shadow-sm p-5">
+        <h3 class="text-lg font-bold text-[var(--text)] serif mb-3">Immigration & residency</h3>
+        <p class="text-sm text-[var(--text-muted)] mb-3">As EU citizens (Romania/Greece), you have freedom of movement. To establish residency and optimise tax position:</p>
+        <ul class="list-disc list-inside text-sm text-[var(--text)] space-y-1 mb-3">
+          <li><strong>Codice Fiscale</strong> — required before contract and bank account</li>
+          <li><strong>Physical domicile</strong> — e.g. lease at property pre-close (proof for residency)</li>
+          <li><strong>Anagrafe registration</strong> — within 90 days of arrival (Comune di Castel Viscardo)</li>
+          <li><strong>Financial self-sufficiency</strong> — evidence of funds (~€12k/year for couple)</li>
+          <li><strong>Health insurance</strong> — valid in Italy until SSN via agricultural business</li>
+          <li><strong>18-month rule (Prima Casa):</strong> Move residency to Castel Viscardo within 18 months of purchase to qualify for 2% (vs 9%) registration tax; clawback + 30% penalty if missed.</li>
+        </ul>
+        <p class="text-sm text-[var(--text-muted)]">See <button type="button" onclick="switchView('research')" class="text-[var(--accent)] underline hover:no-underline">Research</button> and Master Plan for full checklists and links.</p>
+      </div>
+
+      <div class="rounded-xl border border-[var(--border)] bg-[var(--card)] shadow-sm p-5">
+        <h3 class="text-lg font-bold text-[var(--text)] serif mb-3">Negotiation & agreement terms</h3>
+        <p class="text-sm text-[var(--text)] mb-3"><strong>Purchase price:</strong> €1,000,000 (furniture excluded to minimise registration tax). Deposit at compromesso; balance at Rogito. Broker: 2.5%. Notary and legal/cadastral fees apply. Annex conversion costs (municipal, APE) on buyer.</p>
+        <p class="text-sm text-[var(--text-muted)] mb-3"><strong>Recommended structure (split):</strong> (1) <strong>Private purchase</strong> — You and your wife buy the A/2 residential units and C/6 garage as individuals → Prima Casa 2% rate. (2) <strong>SSA (Società Semplice Agricola)</strong> — Form an agricultural partnership; SSA buys 24 ha land and annexes C/4, C/2 → IAP benefits, agricultural transfer taxes, IMU exemption. (3) <strong>Comodato d’uso</strong> — Registered lease from you (owners) to the SSA for use of guest rooms for agriturismo. This protects equity, shields external income, and maximises tax benefits. Alternatives (co-ownership, wife-only, or full SSA) either lose Prima Casa or concentrate risk; see Research for details.</p>
+      </div>
+    </section>
+
+    <!-- (Immigration merged into Master Plan) -->
+    <section id="view-immigration" class="hidden" aria-hidden="true">
+      <p class="text-[var(--text-muted)]">Immigration is now in Master Plan.</p>
+    </section>
+
+    <!-- Research (markdown reference docs) -->
+    <section id="view-research" class="hidden space-y-8">
+      <div id="research-doc-list">
+        <h2 class="text-3xl font-bold text-[var(--text)] serif">Research</h2>
+        <p class="text-[var(--text-muted)] max-w-2xl">Reference documents for the project. Click a document to open and read it in the app.</p>
+        <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-2 mt-6">
+          <button type="button" onclick="openResearchDoc('detailed_plan.md')" class="block border border-[var(--border)] rounded-xl p-5 bg-[var(--card)] shadow-sm hover:shadow hover:border-[var(--accent)]/40 transition text-left cursor-pointer">
+            <h3 class="font-bold text-[var(--text)] serif text-lg">Comprehensive Strategic Analysis</h3>
+            <p class="text-sm text-[var(--text-muted)] mt-2">Legal and urbanistic due diligence, cadastral profiling, zoning, agriturismo framework, EU immigration and residency, acquisition and CAPEX phases, 5-year revenue outlook, grants, Canadian exit strategy, 2026 action timeline.</p>
+            <span class="inline-block mt-3 text-sm text-[var(--accent)] font-medium">detailed_plan.md →</span>
+          </button>
+          <button type="button" onclick="openResearchDoc('simple_plan.md')" class="block border border-[var(--border)] rounded-xl p-5 bg-[var(--card)] shadow-sm hover:shadow hover:border-[var(--accent)]/40 transition text-left cursor-pointer">
+            <h3 class="font-bold text-[var(--text)] serif text-lg">Master Reference & Business Plan</h3>
+            <p class="text-sm text-[var(--text-muted)] mt-2">Executive summary, property overview, agriturismo vs B&amp;B, purchase transaction, renovations, agricultural strategy, CSR Umbria grants, immigration roadmap, 10-year financial projections, implementation checklist.</p>
+            <span class="inline-block mt-3 text-sm text-[var(--accent)] font-medium">simple_plan.md →</span>
+          </button>
+          <button type="button" onclick="openResearchDoc('fincancial_plan.md')" class="block border border-[var(--border)] rounded-xl p-5 bg-[var(--card)] shadow-sm hover:shadow hover:border-[var(--accent)]/40 transition text-left cursor-pointer">
+            <h3 class="font-bold text-[var(--text)] serif text-lg">Strategic Financial Analysis</h3>
+            <p class="text-sm text-[var(--text-muted)] mt-2">Dual-entity architecture (agriturismo + Events SRL), CAPEX breakdown, saffron and hospitality revenue model, events affiliate revenue and costs, consolidated 5-year P&amp;L, implementation phasing.</p>
+            <span class="inline-block mt-3 text-sm text-[var(--accent)] font-medium">fincancial_plan.md →</span>
+          </button>
+          <button type="button" onclick="openResearchDoc('purchase_strucuture_research.md')" class="block border border-[var(--border)] rounded-xl p-5 bg-[var(--card)] shadow-sm hover:shadow hover:border-[var(--accent)]/40 transition text-left cursor-pointer">
+            <h3 class="font-bold text-[var(--text)] serif text-lg">Purchase Structure Research</h3>
+            <p class="text-sm text-[var(--text-muted)] mt-2">Prima Casa (whole property vs residential unit, two-unit hurdle), protecting non-agricultural income, purchasing structure analysis and wealth preservation for the Castel Viscardo acquisition.</p>
+            <span class="inline-block mt-3 text-sm text-[var(--accent)] font-medium">purchase_strucuture_research.md →</span>
+          </button>
+        </div>
+      </div>
+      <div id="research-doc-viewer" class="hidden">
+        <button type="button" onclick="backToResearchList()" class="mb-4 px-4 py-2 rounded-lg bg-[var(--pastel-lavender)] text-[var(--accent)] font-medium hover:bg-[var(--accent-soft)] transition">← Back to list</button>
+        <div class="rounded-xl border border-[var(--border)] bg-[var(--card)] shadow-sm p-6 sm:p-8 overflow-x-auto max-h-[75vh] overflow-y-auto">
+          <div id="research-doc-content" class="research-content"></div>
+        </div>
+      </div>
+      <p id="research-fetch-error" class="hidden text-sm text-red-600 mt-2"></p>
+    </section>
+
+    <!-- Financial Planning -->
+    <section id="view-financial" class="hidden space-y-8">
+      <h2 class="text-3xl font-bold text-[var(--text)] serif">Financial Planning</h2>
+      <div class="flex flex-wrap gap-2 items-center border-b border-[var(--border)] pb-4">
+        <span class="text-sm text-[var(--text-muted)]">Show:</span>
+        <button type="button" onclick="setFinancialFilter('all')" id="btn-financial-all" class="financial-filter px-3 py-1.5 rounded-lg text-sm font-semibold bg-[var(--accent-soft)] text-[var(--accent)] transition">All</button>
+        <button type="button" onclick="setFinancialFilter('acquisition')" id="btn-financial-acquisition" class="financial-filter px-3 py-1.5 rounded-lg text-sm text-[var(--text-muted)] hover:bg-[var(--accent-soft)] transition">Acquisition</button>
+        <button type="button" onclick="setFinancialFilter('capex')" id="btn-financial-capex" class="financial-filter px-3 py-1.5 rounded-lg text-sm text-[var(--text-muted)] hover:bg-[var(--accent-soft)] transition">CAPEX</button>
+        <button type="button" onclick="setFinancialFilter('pl')" id="btn-financial-pl" class="financial-filter px-3 py-1.5 rounded-lg text-sm text-[var(--text-muted)] hover:bg-[var(--accent-soft)] transition">Income statement</button>
+        <button type="button" onclick="setFinancialFilter('cashflow')" id="btn-financial-cashflow" class="financial-filter px-3 py-1.5 rounded-lg text-sm text-[var(--text-muted)] hover:bg-[var(--accent-soft)] transition">Cash flow</button>
+        <button type="button" onclick="setFinancialFilter('balance')" id="btn-financial-balance" class="financial-filter px-3 py-1.5 rounded-lg text-sm text-[var(--text-muted)] hover:bg-[var(--accent-soft)] transition">Balance sheet</button>
+        <button type="button" onclick="setFinancialFilter('grants')" id="btn-financial-grants" class="financial-filter px-3 py-1.5 rounded-lg text-sm text-[var(--text-muted)] hover:bg-[var(--accent-soft)] transition">Grants</button>
+      </div>
+
+      <div id="financial-acquisition" class="financial-block space-y-6">
+        <h3 class="text-xl font-bold text-[var(--text)] serif">Acquisition costs (with justification)</h3>
+        <div class="overflow-x-auto rounded-xl border border-[var(--border)] bg-[var(--card)] shadow-sm">
+          <table class="w-full text-sm border-collapse">
+            <thead>
+              <tr class="bg-[var(--pastel-lavender)]">
+                <th class="text-left p-3 border-b border-[var(--border)] font-bold text-[var(--text)]">Line item</th>
+                <th class="text-right p-3 border-b border-[var(--border)] font-bold text-[var(--text)]">Amount (EUR)</th>
+                <th class="text-left p-3 border-b border-[var(--border)] font-bold text-[var(--text)]">Justification</th>
+              </tr>
+            </thead>
+            <tbody id="acquisition-table-body"></tbody>
+            <tfoot>
+              <tr class="bg-[var(--pastel-lavender)] font-bold">
+                <td class="p-3 border-t-2 border-[var(--border)] text-[var(--text)]">Total to close</td>
+                <td id="total-to-close" class="p-3 text-right border-t-2 border-[var(--border)] text-[var(--text)]">—</td>
+                <td class="p-3 border-t-2 border-[var(--border)] text-[var(--text-muted)]">Deposit €200k at compromesso; balance €800k at Rogito.</td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+        <div class="bg-[var(--card)] border border-[var(--border)] rounded-xl p-4 shadow-sm">
+          <h4 class="font-bold text-[var(--text)] mb-2">Tax optimization & purchase structure</h4>
+          <ul class="list-disc list-inside space-y-1 text-sm text-[var(--text-muted)]">
+            <li><strong>Split structure (recommended):</strong> Buy A/2 residential units + C/6 garage as private individuals (Prima Casa 2%); form SSA to buy 24 ha land + farming annexes (IAP benefits, agricultural transfer taxes). <em>Comodato d’uso</em> lets SSA use guest rooms for agriturismo. Protects equity and maximizes benefits.</li>
+            <li>Prima Casa: 18-month residency in Castel Viscardo (clawback + 30% if missed). <a href="https://www.agenziaentrate.gov.it/portale/l-acquisto-con-i-benefici-prima-casa" target="_blank" rel="noopener" class="text-[var(--accent)] underline hover:no-underline">Agenzia delle Entrate</a></li>
+            <li>Canadian exit: Sever ties; departure tax (deemed disposition); TFSA liquidate before Italian residency; RRSP 25% withholding (treaty 15% for periodic pensions); FHSA withdraw or transfer before departure; Form NR73. <a href="https://www.canada.ca/en/revenue-agency/services/tax/international-non-residents/individuals-leaving-entering-canada-non-residents/leaving-canada-emigrants.html" target="_blank" rel="noopener" class="text-[var(--accent)] underline hover:no-underline">CRA</a></li>
+            <li>Forex: Specialist broker + forward for purchase; Wise for ongoing ops.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div id="financial-capex" class="financial-block space-y-6">
+        <h3 class="text-xl font-bold text-[var(--text)] serif">Capital expenditure (revitalization & wellness)</h3>
+        <p class="text-sm text-[var(--text-muted)]">Luxury wellness positioning: pool &amp; spa (sauna, cold plunge), outdoor gym, sun room pergola, outdoor kitchen. Total €531,000 (Comprehensive Strategic Financial Analysis, Table 2).</p>
+        <div class="overflow-x-auto rounded-xl border border-[var(--border)] bg-[var(--card)] shadow-sm">
+          <table class="w-full text-sm border-collapse">
+            <thead>
+              <tr class="bg-[var(--pastel-lavender)]">
+                <th class="text-left p-3 border-b border-[var(--border)] font-bold text-[var(--text)]">Component</th>
+                <th class="text-right p-3 border-b border-[var(--border)] font-bold text-[var(--text)]">Amount (EUR)</th>
+                <th class="text-left p-3 border-b border-[var(--border)] font-bold text-[var(--text)]">Rationale</th>
+              </tr>
+            </thead>
+            <tbody id="capex-table-body"></tbody>
+            <tfoot>
+              <tr class="bg-[var(--pastel-lavender)] font-bold">
+                <td class="p-3 border-t-2 border-[var(--border)] text-[var(--text)]">Total revitalization</td>
+                <td id="total-capex" class="p-3 text-right border-t-2 border-[var(--border)] text-[var(--text)]">—</td>
+                <td class="p-3 border-t-2 border-[var(--border)] text-[var(--text-muted)]">Includes pool &amp; wellness (sauna, cold plunge), gym, sun room, outdoor kitchen. Grant buffer (e.g. SRD03) reimburses 12–24 months.</td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+        <p class="text-sm text-[var(--text-muted)]"><strong>Total project (acquisition + CAPEX):</strong> €1,661,500 – €1,663,500 (depending on mortgage registration). Family trust loan covers acquisition + CAPEX + working capital; 24-month interest-only grace, then 15-year amortization at 2.5%.</p>
+      </div>
+
+      <div id="financial-pl" class="financial-block space-y-6">
+        <h3 class="text-xl font-bold text-[var(--text)] serif">Income statement (P&amp;L)</h3>
+        <p class="text-sm text-[var(--text-muted)]">Agriturismo (core) plus Events affiliate SRL; totals consolidated. Hospitality must stay under 50% of turnover; IAP gives Regime Forfettario (~6% on hospitality). ADR includes wellness (sauna, gym, sun room).</p>
+        <div class="rounded-xl border border-[var(--accent)]/40 bg-[var(--accent-soft)] p-4 text-sm text-[var(--text)]">
+          <strong>Agriturismo rule:</strong> Hospitality revenue cannot exceed agricultural revenue (50% ceiling). From 2028 onward ratio is &lt;50%. IAP status gives Regime Forfettario (~6% effective on hospitality), IMU exemption, 50% VAT reduction. Events affiliate is a separate SRL; its revenue is not part of the agriturismo cap.
+        </div>
+        <div class="overflow-x-auto rounded-xl border border-[var(--border)] bg-[var(--card)] shadow-sm">
+          <table class="w-full text-sm border-collapse" id="pl-table"></table>
+        </div>
+        <div id="pl-details-container"></div>
+        <div class="chart-container rounded-xl border border-[var(--border)] bg-[var(--card)] p-4 shadow-sm">
+          <canvas id="pl-chart"></canvas>
+        </div>
+      </div>
+
+      <div id="financial-cashflow" class="financial-block space-y-6">
+        <h3 class="text-xl font-bold text-[var(--text)] serif">Cash flow statement</h3>
+        <p class="text-sm text-[var(--text-muted)]">Operating by entity (Agriturismo EBITDA, Events net, grants); investing and financing consolidated. Loan: 24-month interest-only, then 15-year amortization at 2.5%.</p>
+        <div class="overflow-x-auto rounded-xl border border-[var(--border)] bg-[var(--card)] shadow-sm">
+          <table class="w-full text-sm border-collapse" id="cashflow-table"></table>
+        </div>
+      </div>
+
+      <div id="financial-balance" class="financial-block space-y-6">
+        <h3 class="text-xl font-bold text-[var(--text)] serif">Balance sheet</h3>
+        <p class="text-sm text-[var(--text-muted)]">Consolidated year-end snapshot. Property at cost (acquisition + CAPEX); no depreciation.</p>
+        <div class="overflow-x-auto rounded-xl border border-[var(--border)] bg-[var(--card)] shadow-sm">
+          <table class="w-full text-sm border-collapse" id="balance-table"></table>
+        </div>
+      </div>
+
+      <div id="financial-grants" class="financial-block space-y-6">
+        <h3 class="text-xl font-bold text-[var(--text)] serif">Grants (CSR Umbria)</h3>
+        <p class="text-sm text-[var(--text-muted)]">Application windows (“a sportello” / “a bando”); reimbursement after 12–24 months. <a href="https://www.umbriagricoltura.it/category/bandi/" target="_blank" rel="noopener" class="text-[var(--accent)] underline hover:no-underline">Bandi Umbria Agricoltura</a> · <a href="https://www.regione.umbria.it/la-regione/bandi" target="_blank" rel="noopener" class="text-[var(--accent)] underline hover:no-underline">Regione Umbria bandi</a></p>
+        <div id="grants-cards" class="grid gap-4 md:grid-cols-2"></div>
+      </div>
+    </section>
+
+    <!-- Master Plan (Timeline + Immigration) -->
+    <section id="view-timeline" class="hidden space-y-8">
+      <h2 class="text-3xl font-bold text-[var(--text)] serif">Master Plan</h2>
+      <p class="text-[var(--text-muted)] max-w-2xl">Immigration, pre-move, move & close, and years 1–5. Filter by theme; check off tasks to save progress.</p>
+      <div class="flex flex-wrap gap-2 items-center">
+        <span class="text-sm text-[var(--text-muted)]">Show:</span>
+        <button type="button" onclick="setPlanFilter('all')" id="filter-all" class="plan-filter px-3 py-1.5 rounded-lg text-sm font-semibold bg-[var(--accent-soft)] text-[var(--accent)] transition">All</button>
+        <button type="button" onclick="setPlanFilter('immigration')" id="filter-immigration" class="plan-filter px-3 py-1.5 rounded-lg text-sm text-[var(--text-muted)] transition">Immigration</button>
+        <button type="button" onclick="setPlanFilter('pre-move')" id="filter-pre-move" class="plan-filter px-3 py-1.5 rounded-lg text-sm transition">Pre-move</button>
+        <button type="button" onclick="setPlanFilter('move-close')" id="filter-move-close" class="plan-filter px-3 py-1.5 rounded-lg text-sm transition">Move & close</button>
+        <button type="button" onclick="setPlanFilter('post-move')" id="filter-post-move" class="plan-filter px-3 py-1.5 rounded-lg text-sm transition">Post-move</button>
+        <button type="button" onclick="setPlanFilter('years-1-5')" id="filter-years-1-5" class="plan-filter px-3 py-1.5 rounded-lg text-sm transition">Years 1–5</button>
+      </div>
+      <div class="relative pl-10">
+        <div class="timeline-line"></div>
+        <div id="timeline-phases"></div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const CHECKLIST_KEY = 'violiveto-immigration-checklist';
+    const TIMELINE_KEY = 'violiveto-timeline-done';
+
+    const PLAN_FILTER_KEY = 'violiveto-plan-filter';
+    const FINANCIAL_FILTER_KEY = 'violiveto-financial-filter';
+
+    const planGroups = [
+      {
+        theme: 'immigration',
+        title: 'Immigration & Residency',
+        tasks: [
+          { when: 'Feb–Mar', label: 'Codice Fiscale (before June)', link: 'https://www.anagrafenazionale.interno.it/servizi-ai-cittadini-europei-eng/' },
+          { when: 'May', label: 'Establish domicile (e.g. rent ground floor Podere Cerreto pre-close; lease as proof)', link: null },
+          { when: 'June W4', label: 'Within 90 days of arrival: register at Anagrafe (Comune di Castel Viscardo)', link: 'https://yourwaytoitaly.it/en/articles/certificate-of-registration-registry-office-for-eu-citizens' },
+          { when: 'Feb–Jun', label: 'Proof of financial self-sufficiency (~€12k/year for couple)', link: null },
+          { when: 'Feb–May', label: 'Health insurance valid in Italy (until SSN via agricultural business)', link: null },
+          { when: 'Mar', label: "If wife's Greek citizenship not ready: Register wedding certificate with Romanian consulate (e.g. Montreal)", link: 'https://montreal.mae.ro/en' },
+          { when: 'By Dec 2027', label: 'Move residency to Castel Viscardo within 18 months of purchase (Prima Casa)', link: 'https://www.agenziaentrate.gov.it/portale/l-acquisto-con-i-benefici-prima-casa' },
+        ],
+      },
+      {
+        theme: 'pre-move',
+        title: 'Phase A — Pre-move (mid-Feb → May 2026)',
+        tasks: [
+          { when: 'Feb W2', label: 'Finalize trust loan; notary/Procura if needed' },
+          { when: 'Feb W2', label: 'Engage forex specialist broker; set up forward for €800k at Rogito' },
+          { when: 'Feb W3', label: 'Set up Wise (TransferWise) for CAD→EUR' },
+          { when: 'Feb W3', label: 'Plan and execute CAD→EUR for move and first months' },
+          { when: 'Mar W1', label: 'Resign (4 weeks notice)' },
+          { when: 'Mar', label: 'Notify Quebec landlord' },
+          { when: 'Mar–Apr', label: 'Liquidate TFSA/brokerage; transfer to forex/Wise' },
+          { when: 'Mar', label: 'Form NR73 (CRA)' },
+          { when: 'Feb–Mar', label: 'Codice Fiscale (before move)' },
+          { when: 'Feb–Mar', label: 'Renew passports' },
+          { when: 'Mar', label: "Register wedding certificate at Romanian consulate (Montreal) if wife's Greek citizenship not ready" },
+          { when: 'Mar', label: 'Book FCL (8–12 weeks); book early' },
+          { when: 'Mar–Apr', label: 'Move inventory: list what goes in luggage vs leave-behind (names and dates for family/friends to bring)' },
+          { when: 'Apr', label: 'Research vehicle lease or long-term rental in Italy' },
+          { when: 'May', label: 'Book vehicle for pick-up on or shortly after arrival (airport or Orvieto); confirm pick-up and docs' },
+        ],
+      },
+      {
+        theme: 'move-close',
+        title: 'Phase B — Move and close (June 2026)',
+        tasks: [
+          { when: 'June 1', label: 'Arrival' },
+          { when: 'June 1', label: 'Collect leased/rented vehicle (airport or nearby)' },
+          { when: 'June 1', label: 'Walkthrough with surveyor (annex conversion)' },
+          { when: 'June W2', label: 'Agricultural consultant meeting (IAP course, ATECO)' },
+          { when: 'June 15', label: 'Rogito; €800k via forex broker' },
+          { when: 'June W4', label: 'Anagrafe registration (both; wife as spouse if Romanian route)' },
+          { when: 'June W4', label: 'Codice Fiscale resident update' },
+          { when: 'June', label: 'Wise for CAD→EUR as needed (ongoing)' },
+        ],
+      },
+      {
+        theme: 'post-move',
+        title: 'Phase C — Post-move (July–Dec 2026)',
+        tasks: [
+          { when: 'July', label: 'Partita IVA' },
+          { when: 'July', label: 'Apply Young Farmers (SRE01)' },
+          { when: 'July–Aug', label: 'Pool renovation: permits' },
+          { when: 'July–Sep', label: 'Pool renovation: salt, cover, deck' },
+          { when: 'July–Dec', label: 'IAP course (e.g. 150 h)' },
+          { when: 'Oct', label: 'First saffron planting' },
+          { when: 'Jul–Dec', label: 'Furnish guest units' },
+          { when: 'Sep–Oct', label: 'Website for agriturismo' },
+          { when: 'Oct–Nov', label: 'Open April 2027 bookings' },
+          { when: 'Ongoing', label: 'Keep Wise for routine transfers' },
+        ],
+      },
+      {
+        theme: 'years-1-5',
+        title: 'Phase D — Years 1–5 (2027–2031)',
+        tasks: [
+          { when: 'Dec 2027', label: 'Confirm 18-month residency in Castel Viscardo (Prima Casa) on track' },
+          { when: '2027', label: 'IAP certification' },
+          { when: '2027', label: 'SCIA' },
+          { when: '2027+', label: 'Ramp occupancy and ag revenue' },
+          { when: 'As bandi open', label: 'Apply for SRD03 (agriturismo renovation)' },
+          { when: 'As bandi open', label: 'Apply for SRA29 (organic)' },
+          { when: 'As bandi open', label: 'Apply for forest grant' },
+          { when: 'As bandi open', label: 'Apply for renewable energy grant' },
+          { when: '2027–2028', label: 'Receive grant reimbursements (12–24 months)' },
+          { when: 'Priority 1 (Year 1)', label: 'Renovation: grant-qualifying and agricultural (basic renovations, paint, minor fixes)' },
+          { when: 'Priority 2 (Year 1–2)', label: 'Kitchen, bathrooms, floors, windows' },
+          { when: 'Priority 3 (Year 2+)', label: 'Cosmetic, staircase, furnishing, livestock, landscaping, personal garden' },
+          { when: 'Ongoing', label: 'Follow up on leave-behind inventory with friends/family' },
+        ],
+      },
+    ];
+
+    const acquisitionLines = [
+      { item: 'Negotiated purchase price', amount: 1000000, min: 1000000, max: 1000000, justification: 'Agreed amount excluding furniture and equipment; contract with seller. Furniture excluded to minimize registration tax (tax applies only to immovable property).' },
+      { item: 'Registration tax (9%)', amount: 90000, min: 20000, max: 90000, justification: '9% on purchase price or cadastral value. Conservative baseline; 2% if Prima Casa (residency in municipality within 18 months).', breakdown: [{ label: 'Calculation', amount: null, note: '9% × €1,000,000 = €90,000 (or 2% = €20,000 if Prima Casa within 18 months).' }] },
+      { item: 'Brokerage commission (2.5%)', amount: 25000, min: 25000, max: 25000, justification: 'Agreed rate with Agenzia Cerrone.', breakdown: [{ label: 'Calculation', amount: null, note: '2.5% × €1,000,000 = €25,000.' }] },
+      { item: 'Notary & legal fees', amount: 4500, min: 4500, max: 4500, justification: 'Covers Rogito drafting and transcription (Financial Projections Refinement, Table 2).' },
+      { item: 'Technical due diligence', amount: 3500, min: 3500, max: 3500, justification: 'Geologist and surveyor reports for CDU/SCIA.' },
+      { item: 'Annex conversion taxes', amount: 7500, min: 7500, max: 7500, justification: 'Municipal fees and APE for change of use (C/4 to residential).' },
+      { item: 'Mortgage registration tax', amount: 2000, min: 0, max: 2000, justification: 'If institutional financing is utilized.' },
+    ];
+
+    const capexLines = [
+      { item: 'Pool & wellness center', amount: 175000, justification: 'Salt-system pool, modular Finnish sauna (~€7k), premium cold plunge with chiller (~€5k). Spa positioning for premium ADR.', children: [{ item: 'Pool (salt system, shell, rigid cover)', amount: 163000 }, { item: 'Finnish sauna (modular)', amount: 7000 }, { item: 'Cold plunge + chiller', amount: 5000 }] },
+      { item: 'Outdoor gym', amount: 12000, justification: 'Multi-station all-weather equipment and safety flooring.', children: [{ item: 'Multi-station equipment', amount: 9000 }, { item: 'Safety flooring & install', amount: 3000 }] },
+      { item: 'Landscaping & outdoor kitchen', amount: 18000, justification: 'Masonry-built kitchen with wood oven and integrated fire area.', children: [{ item: 'Masonry kitchen + wood oven', amount: 12000 }, { item: 'Integrated fire area', amount: 6000 }] },
+      { item: 'Sun room pergola', amount: 16000, justification: 'Bioclimatic glass unit (~20 m²) with sliding walls for year-round use and plant cultivation.' },
+      { item: 'Main house & annex', amount: 235000, justification: '7 en-suite units; interior finishings, energy certs (APE), and furniture.', children: [{ item: 'Main house (7 en-suite, finishes)', amount: 170000 }, { item: 'Annex completion (APE, furniture)', amount: 65000 }] },
+      { item: 'Agricultural infrastructure', amount: 55000, justification: 'Saffron processing equipment, dryers, olive harvest tools, storage.', children: [{ item: 'Saffron dryers & processing', amount: 35000 }, { item: 'Olive harvest tools & storage', amount: 20000 }] },
+      { item: 'Service SRL setup (Events affiliate)', amount: 3500, justification: 'Violiveto Experience & Events SRL: notary, registration, initial tax configuration (separate entity for weddings, wine tours, wellness day passes).' },
+    ];
+
+    const grantsData = [
+      { name: 'SRE01 – Young Farmers', amount: '€40k–50k', eligibility: 'Under 41; first agricultural business', when: 'After Partita IVA (e.g. July 2026)', link: 'https://www.regione.umbria.it/csrumbria' },
+      { name: 'SRD03 – Agriturismo renovation (Azione a)', amount: '50% reimbursement (e.g. €75k on €150k)', eligibility: 'Renovation/hospitality equipment', when: 'Check bando; building/equipment focus', link: 'https://www.umbriagricoltura.it/psp-2023-2027-complemento-di-sviluppo-rurale-csr-per-lumbria-intervento-srd03-investimenti-nelle-aziende-agricole-per-la-diversificazione-in-attivita-non-agricole-azione-a-ag/' },
+      { name: 'SRA29 – Organic', amount: '€4k–8k/year', eligibility: 'Organic certification (existing status)', when: 'Annual', link: 'https://www.regione.umbria.it/csrumbria' },
+      { name: 'Forest management', amount: '€19.5k + €2.6k/yr', eligibility: '13 ha woodland (RERU)', when: 'Check bando', link: 'https://www.regione.umbria.it/csrumbria' },
+      { name: 'Renewable energy', amount: '40–50% funding', eligibility: 'Solar/biomass', when: 'Check bando', link: 'https://www.regione.umbria.it/csrumbria' },
+    ];
+
+    const plByYear = [
+      { year: 2026, agRevenue: 9600, hospGross: 0, variableProd: 12500, variableHosp: 0, fixedOverhead: 21300, inps: 5200, grants: 0, eventsRevenue: 0, eventsVariableCost: 0, eventsFixed: 0 },
+      { year: 2027, agRevenue: 59400, hospGross: 63840, variableProd: 22000, variableHosp: 19152, fixedOverhead: 21300, inps: 5200, grants: 40000, eventsRevenue: 15000, eventsVariableCost: 6000, eventsFixed: 4500 },
+      { year: 2028, agRevenue: 97600, hospGross: 79380, variableProd: 28000, variableHosp: 23814, fixedOverhead: 21500, inps: 5400, grants: 75000, eventsRevenue: 25000, eventsVariableCost: 10000, eventsFixed: 4500 },
+      { year: 2029, agRevenue: 110650, hospGross: 92690, variableProd: 31000, variableHosp: 27807, fixedOverhead: 21800, inps: 5600, grants: 5000, eventsRevenue: 32000, eventsVariableCost: 12800, eventsFixed: 4500 },
+      { year: 2030, agRevenue: 112400, hospGross: 102900, variableProd: 55000, variableHosp: 30870, fixedOverhead: 22000, inps: 5800, grants: 5000, eventsRevenue: 39250, eventsVariableCost: 15700, eventsFixed: 4500 },
+    ];
+    const plAdrByYear = { 2026: 0, 2027: 190, 2028: 210, 2029: 230, 2030: 245 };
+    const plOccupancyByYear = { 2026: 0, 2027: 0.40, 2028: 0.45, 2029: 0.48, 2030: 0.50 };
+    const plFixedBreakdown = [{ label: 'Electricity', amount: 7500 }, { label: 'Heating (pellet/gas)', amount: 5500 }, { label: 'Wellness maintenance', amount: 2500 }, { label: 'Property insurance', amount: 2000 }, { label: 'Accounting & legal', amount: 3800 }];
+
+    const loanPrincipal = 1600000;
+    const loanRate = 0.025;
+    const graceYears = 2;
+    const amortizationYears = 15;
+    const years = [2026, 2027, 2028, 2029, 2030];
+
+    function getLoanSchedule() {
+      const schedule = [];
+      let balance = loanPrincipal;
+      const r = loanRate;
+      let annualPayment = 0;
+      const startAmortYear = years[0] + graceYears;
+      for (let i = 0; i < years.length; i++) {
+        const y = years[i];
+        const interest = balance * r;
+        let principal = 0;
+        if (y < startAmortYear) {
+          principal = 0;
+        } else {
+          if (annualPayment === 0) {
+            const n = amortizationYears;
+            annualPayment = balance * r * Math.pow(1 + r, n) / (Math.pow(1 + r, n) - 1);
+          }
+          principal = Math.min(annualPayment - interest, balance);
+        }
+        balance -= principal;
+        schedule.push({ year: y, drawdown: y === years[0] ? loanPrincipal : 0, interest, principal, closingBalance: balance });
+      }
+      return schedule;
+    }
+
+    function getStoredChecklist() {
+      try {
+        const s = localStorage.getItem(CHECKLIST_KEY);
+        if (s) return JSON.parse(s);
+      } catch (_) {}
+      return null;
+    }
+    function setStoredChecklist(arr) {
+      try { localStorage.setItem(CHECKLIST_KEY, JSON.stringify(arr)); } catch (_) {}
+    }
+    function getTimelineDone() {
+      try {
+        const s = localStorage.getItem(TIMELINE_KEY);
+        if (s) return JSON.parse(s);
+      } catch (_) {}
+      return {};
+    }
+    function setTimelineDone(obj) {
+      try { localStorage.setItem(TIMELINE_KEY, JSON.stringify(obj)); } catch (_) {}
+    }
+    function getPlanFilter() {
+      try {
+        const s = localStorage.getItem(PLAN_FILTER_KEY);
+        if (s && ['all','immigration','pre-move','move-close','post-move','years-1-5'].indexOf(s) >= 0) return s;
+      } catch (_) {}
+      return 'all';
+    }
+    function setPlanFilter(theme) {
+      try { localStorage.setItem(PLAN_FILTER_KEY, theme); } catch (_) {}
+      document.querySelectorAll('.plan-filter').forEach(btn => {
+        btn.classList.remove('font-semibold', 'bg-[var(--accent-soft)]', 'text-[var(--accent)]');
+        btn.classList.add('text-[var(--text-muted)]');
+        if ((theme === 'all' && btn.id === 'filter-all') || (theme !== 'all' && btn.id === 'filter-' + theme)) {
+          btn.classList.add('font-semibold', 'bg-[var(--accent-soft)]', 'text-[var(--accent)]');
+          btn.classList.remove('text-[var(--text-muted)]');
+        }
+      });
+      renderTimeline();
+    }
+
+    function switchView(view) {
+      ['view-overview','view-immigration','view-financial','view-timeline','view-research'].forEach(id => { const el = document.getElementById(id); if (el) el.classList.add('hidden'); });
+      ['nav-overview','nav-financial','nav-timeline','nav-research'].forEach(id => { const el = document.getElementById(id); if (el) el.classList.remove('active'); });
+      const v = document.getElementById('view-' + view);
+      const n = document.getElementById('nav-' + view);
+      if (v) v.classList.remove('hidden');
+      if (n) n.classList.add('active');
+      if (view === 'financial') setFinancialFilter(getStoredFinancialFilter());
+      if (view === 'research') backToResearchList();
+    }
+
+    function openResearchDoc(filename) {
+      const listEl = document.getElementById('research-doc-list');
+      const viewerEl = document.getElementById('research-doc-viewer');
+      const contentEl = document.getElementById('research-doc-content');
+      const errEl = document.getElementById('research-fetch-error');
+      if (!listEl || !viewerEl || !contentEl) return;
+      errEl.classList.add('hidden');
+      contentEl.innerHTML = '<p class="text-[var(--text-muted)]">Loading…</p>';
+      listEl.classList.add('hidden');
+      viewerEl.classList.remove('hidden');
+      function render(text) {
+        if (typeof marked === 'undefined') { contentEl.innerHTML = '<p class="text-red-600">Markdown parser not loaded. Please refresh.</p>'; return; }
+        marked.setOptions({ gfm: true, breaks: true });
+        let html;
+        try {
+          if (typeof marked.Renderer === 'function') {
+            const renderer = new marked.Renderer();
+            const linkRenderer = renderer.link.bind(renderer);
+            renderer.link = (href, title, text) => {
+              const out = linkRenderer(href, title, text);
+              return href.startsWith('http') ? out.replace('<a ', '<a target="_blank" rel="noopener" ') : out;
+            };
+            html = marked.parse(text, { renderer });
+          } else {
+            html = marked.parse(text);
+          }
+        } catch (_) {
+          html = marked.parse(text);
+        }
+        contentEl.innerHTML = html;
+        contentEl.querySelectorAll('a[href^="http"]').forEach(a => { a.setAttribute('target', '_blank'); a.setAttribute('rel', 'noopener'); });
+      }
+      if (window.embeddedResearchDocs && window.embeddedResearchDocs[filename]) {
+        render(window.embeddedResearchDocs[filename]);
+        return;
+      }
+      fetch(filename)
+        .then(r => { if (!r.ok) throw new Error(r.statusText); return r.text(); })
+        .then(render)
+        .catch(() => {
+          contentEl.innerHTML = '';
+          errEl.textContent = 'Could not load ' + filename + '. Serve the app from a local server (e.g. run from the web folder: npx serve . or python -m http.server) so the browser can fetch the file.';
+          errEl.classList.remove('hidden');
+        });
+    }
+    function backToResearchList() {
+      const listEl = document.getElementById('research-doc-list');
+      const viewerEl = document.getElementById('research-doc-viewer');
+      const errEl = document.getElementById('research-fetch-error');
+      if (listEl) listEl.classList.remove('hidden');
+      if (viewerEl) viewerEl.classList.add('hidden');
+      if (errEl) errEl.classList.add('hidden');
+    }
+
+    function getStoredFinancialFilter() {
+      try {
+        const s = localStorage.getItem(FINANCIAL_FILTER_KEY);
+        if (s && ['all','acquisition','capex','pl','cashflow','balance','grants'].indexOf(s) >= 0) return s;
+      } catch (_) {}
+      return 'all';
+    }
+    function setFinancialFilter(filterId) {
+      try { localStorage.setItem(FINANCIAL_FILTER_KEY, filterId); } catch (_) {}
+      const blockIds = ['financial-acquisition','financial-capex','financial-pl','financial-cashflow','financial-balance','financial-grants'];
+      blockIds.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.classList.toggle('hidden', filterId !== 'all' && id !== 'financial-' + filterId);
+      });
+      document.querySelectorAll('.financial-filter').forEach(btn => {
+        btn.classList.remove('font-semibold', 'bg-[var(--accent-soft)]', 'text-[var(--accent)]');
+        btn.classList.add('text-[var(--text-muted)]');
+        const isActive = (filterId === 'all' && btn.id === 'btn-financial-all') || (filterId !== 'all' && btn.id === 'btn-financial-' + filterId);
+        if (isActive) {
+          btn.classList.add('font-semibold', 'bg-[var(--accent-soft)]', 'text-[var(--accent)]');
+          btn.classList.remove('text-[var(--text-muted)]');
+        }
+      });
+    }
+
+    function renderAcquisition() {
+      const tbody = document.getElementById('acquisition-table-body');
+      let totalMin = 0, totalMax = 0;
+      let html = '';
+      acquisitionLines.forEach(l => {
+        totalMin += l.min; totalMax += l.max;
+        html += '<tr class="border-b border-[var(--border)] hover:bg-[var(--pastel-lavender)]/30"><td class="p-3 text-[var(--text)]">' + l.item + '</td><td class="p-3 text-right text-[var(--text)]">' + (l.min === l.max ? '€' + l.amount.toLocaleString() : '€' + l.min.toLocaleString() + ' – €' + l.max.toLocaleString()) + '</td><td class="p-3 text-[var(--text-muted)]">' + l.justification + '</td></tr>';
+        if (l.breakdown && l.breakdown.length) {
+          const breakdownRows = l.breakdown.map(b => '<tr class="bg-[var(--bg)]"><td class="p-2 pl-6 text-[var(--text-muted)] text-xs" colspan="2">' + (b.note || b.label) + (b.amount != null ? ' €' + b.amount.toLocaleString() : '') + '</td><td class="p-2 text-[var(--text-muted)] text-xs"></td></tr>').join('');
+          html += '<tr class="border-b border-[var(--border)]"><td colspan="3" class="p-0"><details class="group"><summary class="p-2 pl-3 text-xs text-[var(--accent)] cursor-pointer hover:bg-[var(--pastel-lavender)]/30 list-none">Show calculation</summary><table class="w-full text-xs">' + breakdownRows + '</table></details></td></tr>';
+        }
+      });
+      tbody.innerHTML = html;
+      document.getElementById('total-to-close').textContent = '€' + totalMin.toLocaleString() + ' – €' + totalMax.toLocaleString();
+    }
+    function renderCapex() {
+      const tbody = document.getElementById('capex-table-body');
+      let total = 0;
+      let html = '';
+      capexLines.forEach(l => {
+        total += l.amount;
+        html += '<tr class="border-b border-[var(--border)] hover:bg-[var(--pastel-lavender)]/30"><td class="p-3 text-[var(--text)]">' + l.item + '</td><td class="p-3 text-right text-[var(--text)]">€' + l.amount.toLocaleString() + '</td><td class="p-3 text-[var(--text-muted)]">' + l.justification + '</td></tr>';
+        if (l.children && l.children.length) {
+          const childRows = l.children.map(c => '<tr class="bg-[var(--bg)]"><td class="p-2 pl-6 text-[var(--text-muted)]">' + c.item + '</td><td class="p-2 text-right text-[var(--text)]">€' + c.amount.toLocaleString() + '</td><td class="p-2"></td></tr>').join('');
+          html += '<tr class="border-b border-[var(--border)]"><td colspan="3" class="p-0"><details class="group"><summary class="p-2 pl-3 text-xs text-[var(--accent)] cursor-pointer hover:bg-[var(--pastel-lavender)]/30 list-none">Show breakdown</summary><table class="w-full text-sm">' + childRows + '</table></details></td></tr>';
+        }
+      });
+      tbody.innerHTML = html;
+      document.getElementById('total-capex').textContent = '€' + total.toLocaleString();
+    }
+
+    function fmtEur(val, signed) {
+      if (val === null || val === undefined) return '—';
+      if (typeof val === 'number') {
+        if (signed && val < 0) return '(€' + Math.abs(val).toLocaleString() + ')';
+        return '€' + val.toLocaleString();
+      }
+      return val;
+    }
+    function renderPL() {
+      const thead = '<thead><tr class="bg-[var(--pastel-lavender)]"><th class="text-left p-2 border-b border-[var(--border)] font-bold text-[var(--text)]">Category</th>' + plByYear.map(y => '<th class="text-right p-2 border-b border-[var(--border)] font-bold text-[var(--text)]">' + y.year + '</th>').join('') + '</tr></thead>';
+      const section = (title) => '<tr class="border-b border-[var(--border)]"><td colspan="' + (plByYear.length + 1) + '" class="p-2 font-bold text-[var(--text)] bg-[var(--pastel-lavender)]/50">' + title + '</td></tr>';
+      const row = (label, getVal, justify) => {
+        const cells = plByYear.map(y => {
+          const v = getVal(y);
+          const title = (justify || '').replace(/"/g, '&quot;');
+          const display = typeof v === 'number' ? (v < 0 ? fmtEur(v, true) : (label.indexOf('%') >= 0 ? v.toFixed(1) + '%' : fmtEur(v))) : v;
+          return '<td class="text-right p-2 border-b border-[var(--border)] text-[var(--text)]" data-justification="' + title + '" title="' + title + '">' + display + '</td>';
+        });
+        return '<tr class="hover:bg-[var(--pastel-lavender)]/20"><td class="p-2 border-b border-[var(--border)] font-medium text-[var(--text)]">' + label + '</td>' + cells.join('') + '</tr>';
+      };
+      let body = '';
+      body += section('Agriturismo (core entity)');
+      body += row('Agricultural revenue', y => y.agRevenue, 'Saffron (Table 4), olive oil & wine (Table 5). Boutique pricing; ag must be ≥ hospitality for agriturismo.');
+      body += row('Hospitality revenue (gross)', y => y.hospGross, '4 units × 210 days × ADR × occupancy. OTA 15%; cleaning €50/turnover (Table 6).');
+      body += row('Agriturismo gross turnover', y => y.agRevenue + y.hospGross, 'Sum of agricultural and hospitality (core entity only).');
+      body += row('Hospitality ratio (core)', y => {
+        const t = y.agRevenue + y.hospGross;
+        return t ? (y.hospGross / t * 100) : 0;
+      }, 'Must stay &lt;50% for agriturismo status.');
+      body += '<tr><td colspan="' + (plByYear.length + 1) + '" class="p-1 border-b border-[var(--border)]"></td></tr>';
+      body += row('Variable production costs', y => -y.variableProd, 'Saffron labor, corms, olive/wine harvest & processing (Table 4–5).');
+      body += row('Variable hospitality costs', y => -y.variableHosp, 'OTA commissions 15%, cleaning & laundry, maintenance & supplies (Table 6).');
+      body += row('Fixed overheads', y => -y.fixedOverhead, 'Electricity, heating, wellness maintenance, insurance, accounting (Table 6).');
+      body += row('INPS & IAP fees', y => -y.inps, 'IAP/agriturismo regime.');
+      body += row('Agriturismo EBITDA', y => {
+        return (y.agRevenue + y.hospGross) - y.variableProd - y.variableHosp - y.fixedOverhead - y.inps;
+      }, 'Core entity earnings before interest, tax, D&amp;A.');
+      body += '<tr><td colspan="' + (plByYear.length + 1) + '" class="p-1 border-b border-[var(--border)]"></td></tr>';
+      body += section('Violiveto Experience & Events (affiliate SRL)');
+      body += row('Events / service revenue', y => y.eventsRevenue, 'Weddings, wine tours, wellness day passes; separate SRL so not counted toward agriturismo cap.');
+      body += row('Variable service costs', y => -y.eventsVariableCost, 'Catering supplies & labor (~40% of events revenue).');
+      body += row('SRL fixed (accounting & legal)', y => -y.eventsFixed, 'Annual SRL filing and maintenance.');
+      body += row('Affiliate net', y => y.eventsRevenue - y.eventsVariableCost - y.eventsFixed, 'Events entity contribution to consolidated cash flow.');
+      body += '<tr><td colspan="' + (plByYear.length + 1) + '" class="p-1 border-b border-[var(--border)]"></td></tr>';
+      body += section('Consolidated');
+      body += row('Total gross turnover', y => y.agRevenue + y.hospGross + y.eventsRevenue, 'Agriturismo + affiliate revenue.');
+      body += row('Grants / subsidies (net)', y => y.grants, 'Young Farmers SRE01, SRD03 renovation reimbursement; 12–24 month lead.');
+      body += row('Pre-tax cash flow', y => {
+        const agEbitda = (y.agRevenue + y.hospGross) - y.variableProd - y.variableHosp - y.fixedOverhead - y.inps;
+        const eventsNet = y.eventsRevenue - y.eventsVariableCost - y.eventsFixed;
+        return agEbitda + eventsNet + y.grants;
+      }, 'Agriturismo EBITDA + affiliate net + grants. Regime Forfettario on hospitality (~6% effective).');
+      document.getElementById('pl-table').innerHTML = thead + '<tbody>' + body + '</tbody>';
+
+      const detailsEl = document.getElementById('pl-details-container');
+      let detailsHtml = '<details class="mt-4 border border-[var(--border)] rounded-lg overflow-hidden"><summary class="p-3 bg-[var(--pastel-lavender)]/40 cursor-pointer list-none text-[var(--accent)] font-medium">Supporting calculations</summary><div class="p-4 space-y-4 text-sm">';
+      detailsHtml += '<div><strong class="text-[var(--text)]">Agricultural revenue</strong><p class="text-[var(--text-muted)] mt-1">Saffron (yield × price by year) + Olive oil €5,400 + Wine €9,000 (Table 3–5).</p><table class="mt-2 w-full max-w-md text-xs border-collapse"><tr class="border-b border-[var(--border)]"><th class="text-left p-1">Year</th>' + plByYear.map(y => '<th class="text-right p-1">' + y.year + '</th>').join('') + '</tr><tr class="border-b border-[var(--border)]"><td class="p-1 text-[var(--text-muted)]">Ag revenue</td>' + plByYear.map(y => '<td class="text-right p-1">€' + y.agRevenue.toLocaleString() + '</td>').join('') + '</tr></table></div>';
+      detailsHtml += '<div><strong class="text-[var(--text)]">Hospitality revenue</strong><p class="text-[var(--text-muted)] mt-1">Formula: 4 units × 210 days × ADR × occupancy.</p><table class="mt-2 w-full max-w-md text-xs border-collapse"><tr class="border-b border-[var(--border)]"><th class="text-left p-1">Year</th>' + plByYear.map(y => '<th class="text-right p-1">' + y.year + '</th>').join('') + '</tr><tr class="border-b border-[var(--border)]"><td class="p-1 text-[var(--text-muted)]">ADR (€)</td>' + plByYear.map(y => '<td class="text-right p-1">' + (plAdrByYear[y.year] || 0) + '</td>').join('') + '</tr><tr class="border-b border-[var(--border)]"><td class="p-1 text-[var(--text-muted)]">Occupancy</td>' + plByYear.map(y => '<td class="text-right p-1">' + (plOccupancyByYear[y.year] != null ? (plOccupancyByYear[y.year] * 100) + '%' : '–') + '</td>').join('') + '</tr><tr class="border-b border-[var(--border)]"><td class="p-1 text-[var(--text-muted)]">Gross</td>' + plByYear.map(y => '<td class="text-right p-1">€' + y.hospGross.toLocaleString() + '</td>').join('') + '</tr></table></div>';
+      detailsHtml += '<div><strong class="text-[var(--text)]">Variable hospitality costs</strong><p class="text-[var(--text-muted)] mt-1">~30% of gross: OTA 15%, cleaning €50/turnover, maintenance & supplies (Table 6).</p><table class="mt-2 w-full max-w-md text-xs border-collapse"><tr class="border-b border-[var(--border)]"><th class="text-left p-1">Year</th>' + plByYear.map(y => '<th class="text-right p-1">' + y.year + '</th>').join('') + '</tr><tr class="border-b border-[var(--border)]"><td class="p-1 text-[var(--text-muted)]">Variable hosp.</td>' + plByYear.map(y => '<td class="text-right p-1">€' + y.variableHosp.toLocaleString() + '</td>').join('') + '</tr></table></div>';
+      detailsHtml += '<div><strong class="text-[var(--text)]">Fixed overheads</strong><p class="text-[var(--text-muted)] mt-1">Annual fixed costs (Table 6).</p><table class="mt-2 w-full max-w-sm text-xs border-collapse"><tr class="border-b border-[var(--border)]"><th class="text-left p-1">Item</th><th class="text-right p-1">€/year</th></tr>' + plFixedBreakdown.map(f => '<tr class="border-b border-[var(--border)]"><td class="p-1">' + f.label + '</td><td class="text-right p-1">€' + f.amount.toLocaleString() + '</td></tr>').join('') + '<tr class="border-b border-[var(--border)] font-medium"><td class="p-1">Total (base)</td><td class="text-right p-1">€21,300</td></tr></table></div>';
+      detailsHtml += '<div><strong class="text-[var(--text)]">Events affiliate (Violiveto Experience &amp; Events SRL)</strong><p class="text-[var(--text-muted)] mt-1">Separate SRL: weddings, wine &amp; cellar tours, wellness day passes. Revenue and costs kept outside agriturismo P&amp;L for cap compliance.</p><table class="mt-2 w-full max-w-md text-xs border-collapse"><tr class="border-b border-[var(--border)]"><th class="text-left p-1">Year</th>' + plByYear.map(y => '<th class="text-right p-1">' + y.year + '</th>').join('') + '</tr><tr class="border-b border-[var(--border)]"><td class="p-1 text-[var(--text-muted)]">Events revenue</td>' + plByYear.map(y => '<td class="text-right p-1">€' + y.eventsRevenue.toLocaleString() + '</td>').join('') + '</tr><tr class="border-b border-[var(--border)]"><td class="p-1 text-[var(--text-muted)]">Variable + fixed</td>' + plByYear.map(y => '<td class="text-right p-1">€' + (y.eventsVariableCost + y.eventsFixed).toLocaleString() + '</td>').join('') + '</tr></table></div>';
+      detailsHtml += '</div></details>';
+      detailsEl.innerHTML = detailsHtml;
+
+      const labels = plByYear.map(y => '' + y.year);
+      const revenue = plByYear.map(y => y.agRevenue + y.hospGross + y.eventsRevenue);
+      const costs = plByYear.map(y => y.variableProd + y.variableHosp + y.fixedOverhead + y.inps + y.eventsVariableCost + y.eventsFixed);
+      const preTax = plByYear.map(y => {
+        const agEbitda = (y.agRevenue + y.hospGross) - y.variableProd - y.variableHosp - y.fixedOverhead - y.inps;
+        const eventsNet = y.eventsRevenue - y.eventsVariableCost - y.eventsFixed;
+        return agEbitda + eventsNet + y.grants;
+      });
+      const ctx = document.getElementById('pl-chart').getContext('2d');
+      if (window.plChart) window.plChart.destroy();
+      window.plChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels,
+          datasets: [
+            { label: 'Total revenue', data: revenue, backgroundColor: 'rgba(124,107,158,0.6)' },
+            { label: 'Total costs', data: costs, backgroundColor: 'rgba(148,163,184,0.5)' },
+            { label: 'Pre-tax cash flow', data: preTax, type: 'line', borderColor: 'rgb(124,107,158)', backgroundColor: 'rgba(124,107,158,0.1)', fill: true, tension: 0.3 },
+          ],
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: { y: { beginAtZero: true } },
+          plugins: { legend: { position: 'top' } },
+        },
+      });
+    }
+
+    function renderCashFlow() {
+      const totalCapex = capexLines.reduce((s, l) => s + l.amount, 0);
+      const schedule = getLoanSchedule();
+      const cfRows = [];
+      const thead = '<thead><tr class="bg-[var(--pastel-lavender)]"><th class="text-left p-2 border-b border-[var(--border)] font-bold text-[var(--text)]">Category</th>' + years.map(y => '<th class="text-right p-2 border-b border-[var(--border)] font-bold text-[var(--text)]">' + y + '</th>').join('') + '</tr></thead>';
+      const cell = (val, signed) => typeof val === 'number' ? (val < 0 ? '(€' + Math.abs(val).toLocaleString() + ')' : '€' + val.toLocaleString()) : val;
+      plByYear.forEach((py, i) => {
+        const agEbitda = (py.agRevenue + py.hospGross) - py.variableProd - py.variableHosp - py.fixedOverhead - py.inps;
+        const eventsNet = py.eventsRevenue - py.eventsVariableCost - py.eventsFixed;
+        const oper = agEbitda + eventsNet + py.grants;
+        const capEx = py.year === 2026 ? -totalCapex : 0;
+        const s = schedule[i];
+        const fin = s.drawdown - s.interest - s.principal;
+        const net = oper + capEx + fin;
+        cfRows.push({ year: py.year, agEbitda, eventsNet, grants: py.grants, oper, capEx, drawdown: s.drawdown, interest: -s.interest, principal: -s.principal, fin, net });
+      });
+      const body = [
+        '<tr class="border-b border-[var(--border)]"><td colspan="' + (years.length + 1) + '" class="p-2 font-bold text-[var(--text)] bg-[var(--pastel-lavender)]/30">Operating</td></tr>',
+        '<tr class="hover:bg-[var(--pastel-lavender)]/20"><td class="p-2 pl-4 text-[var(--text-muted)]">Agriturismo EBITDA</td>' + cfRows.map(r => '<td class="text-right p-2 text-[var(--text)]">' + cell(r.agEbitda) + '</td>').join('') + '</tr>',
+        '<tr class="hover:bg-[var(--pastel-lavender)]/20"><td class="p-2 pl-4 text-[var(--text-muted)]">Events affiliate net</td>' + cfRows.map(r => '<td class="text-right p-2 text-[var(--text)]">' + cell(r.eventsNet) + '</td>').join('') + '</tr>',
+        '<tr class="hover:bg-[var(--pastel-lavender)]/20"><td class="p-2 font-medium text-[var(--text)]">Grants</td>' + cfRows.map(r => '<td class="text-right p-2 text-[var(--text)]">' + cell(r.grants) + '</td>').join('') + '</tr>',
+        '<tr class="border-b border-[var(--border)] font-medium"><td class="p-2 text-[var(--text)]">Operating cash flow</td>' + cfRows.map(r => '<td class="text-right p-2 text-[var(--text)]">' + cell(r.oper) + '</td>').join('') + '</tr>',
+        '<tr class="border-b border-[var(--border)]"><td colspan="' + (years.length + 1) + '" class="p-2 font-bold text-[var(--text)] bg-[var(--pastel-lavender)]/30">Investing</td></tr>',
+        '<tr class="hover:bg-[var(--pastel-lavender)]/20"><td class="p-2 font-medium text-[var(--text)]">CAPEX</td>' + cfRows.map(r => '<td class="text-right p-2 text-[var(--text)]">' + cell(r.capEx) + '</td>').join('') + '</tr>',
+        '<tr class="border-b border-[var(--border)] font-medium"><td class="p-2 text-[var(--text)]">Investing cash flow</td>' + cfRows.map(r => '<td class="text-right p-2 text-[var(--text)]">' + cell(r.capEx) + '</td>').join('') + '</tr>',
+        '<tr class="border-b border-[var(--border)]"><td colspan="' + (years.length + 1) + '" class="p-2 font-bold text-[var(--text)] bg-[var(--pastel-lavender)]/30">Financing</td></tr>',
+        '<tr class="hover:bg-[var(--pastel-lavender)]/20"><td class="p-2 font-medium text-[var(--text)]">Loan drawdown</td>' + cfRows.map(r => '<td class="text-right p-2 text-[var(--text)]">' + cell(r.drawdown) + '</td>').join('') + '</tr>',
+        '<tr class="hover:bg-[var(--pastel-lavender)]/20"><td class="p-2 font-medium text-[var(--text)]">− Interest</td>' + cfRows.map(r => '<td class="text-right p-2 text-[var(--text)]">' + cell(r.interest) + '</td>').join('') + '</tr>',
+        '<tr class="hover:bg-[var(--pastel-lavender)]/20"><td class="p-2 font-medium text-[var(--text)]">− Principal</td>' + cfRows.map(r => '<td class="text-right p-2 text-[var(--text)]">' + cell(r.principal) + '</td>').join('') + '</tr>',
+        '<tr class="border-b border-[var(--border)] font-medium"><td class="p-2 text-[var(--text)]">Financing cash flow</td>' + cfRows.map(r => '<td class="text-right p-2 text-[var(--text)]">' + cell(r.fin) + '</td>').join('') + '</tr>',
+        '<tr class="border-b border-[var(--border)]"><td colspan="' + (years.length + 1) + '" class="p-1"></td></tr>',
+        '<tr class="font-bold"><td class="p-2 text-[var(--text)]">Net change in cash</td>' + cfRows.map(r => '<td class="text-right p-2 text-[var(--text)]">' + cell(r.net) + '</td>').join('') + '</tr>',
+        '<tr class="hover:bg-[var(--pastel-lavender)]/20"><td class="p-2 text-[var(--text-muted)]">Cash opening</td>' + cfRows.map((r, i) => '<td class="text-right p-2 text-[var(--text)]">' + cell(i === 0 ? 0 : cfRows.slice(0, i).reduce((s, x) => s + x.net, 0)) + '</td>').join('') + '</tr>',
+        '<tr class="font-medium border-b border-[var(--border)]"><td class="p-2 text-[var(--text)]">Cash closing</td>' + cfRows.map((r, i) => '<td class="text-right p-2 text-[var(--text)]">' + cell(cfRows.slice(0, i + 1).reduce((s, x) => s + x.net, 0)) + '</td>').join('') + '</tr>',
+      ].join('');
+      document.getElementById('cashflow-table').innerHTML = thead + '<tbody>' + body + '</tbody>';
+    }
+
+    function renderBalanceSheet() {
+      const totalAcquisition = acquisitionLines.reduce((s, l) => s + l.amount, 0);
+      const totalCapex = capexLines.reduce((s, l) => s + l.amount, 0);
+      const propertyAtCost = totalAcquisition + totalCapex;
+      const schedule = getLoanSchedule();
+      const cfRows = [];
+      plByYear.forEach((py, i) => {
+        const agEbitda = (py.agRevenue + py.hospGross) - py.variableProd - py.variableHosp - py.fixedOverhead - py.inps;
+        const eventsNet = py.eventsRevenue - py.eventsVariableCost - py.eventsFixed;
+        const oper = agEbitda + eventsNet + py.grants;
+        const capEx = py.year === 2026 ? -totalCapex : 0;
+        const s = schedule[i];
+        const fin = s.drawdown - s.interest - s.principal;
+        cfRows.push({ net: oper + capEx + fin });
+      });
+      const closingCash = cfRows.map((_, i) => cfRows.slice(0, i + 1).reduce((s, x) => s + x.net, 0));
+      const cell = (val) => typeof val === 'number' ? (val < 0 ? '(€' + Math.abs(val).toLocaleString() + ')' : '€' + val.toLocaleString()) : val;
+      const thead = '<thead><tr class="bg-[var(--pastel-lavender)]"><th class="text-left p-2 border-b border-[var(--border)] font-bold text-[var(--text)]">Category</th>' + years.map(y => '<th class="text-right p-2 border-b border-[var(--border)] font-bold text-[var(--text)]">' + y + '</th>').join('') + '</tr></thead>';
+      const body = [
+        '<tr class="border-b border-[var(--border)]"><td colspan="' + (years.length + 1) + '" class="p-2 font-bold text-[var(--text)] bg-[var(--pastel-lavender)]/30">Assets</td></tr>',
+        '<tr class="hover:bg-[var(--pastel-lavender)]/20"><td class="p-2 font-medium text-[var(--text)]">Property / PP&amp;E (at cost)</td>' + years.map(() => '<td class="text-right p-2 text-[var(--text)]">' + cell(propertyAtCost) + '</td>').join('') + '</tr>',
+        '<tr class="hover:bg-[var(--pastel-lavender)]/20"><td class="p-2 font-medium text-[var(--text)]">Cash</td>' + closingCash.map(c => '<td class="text-right p-2 text-[var(--text)]">' + cell(c) + '</td>').join('') + '</tr>',
+        '<tr class="border-b border-[var(--border)] font-medium"><td class="p-2 text-[var(--text)]">Total assets</td>' + years.map((_, i) => '<td class="text-right p-2 text-[var(--text)]">' + cell(propertyAtCost + closingCash[i]) + '</td>').join('') + '</tr>',
+        '<tr class="border-b border-[var(--border)]"><td colspan="' + (years.length + 1) + '" class="p-2 font-bold text-[var(--text)] bg-[var(--pastel-lavender)]/30">Liabilities</td></tr>',
+        '<tr class="hover:bg-[var(--pastel-lavender)]/20"><td class="p-2 font-medium text-[var(--text)]">Family trust loan</td>' + schedule.map(s => '<td class="text-right p-2 text-[var(--text)]">' + cell(s.closingBalance) + '</td>').join('') + '</tr>',
+        '<tr class="border-b border-[var(--border)] font-medium"><td class="p-2 text-[var(--text)]">Total liabilities</td>' + schedule.map(s => '<td class="text-right p-2 text-[var(--text)]">' + cell(s.closingBalance) + '</td>').join('') + '</tr>',
+        '<tr class="border-b border-[var(--border)]"><td colspan="' + (years.length + 1) + '" class="p-2 font-bold text-[var(--text)] bg-[var(--pastel-lavender)]/30">Equity</td></tr>',
+        '<tr class="font-medium border-b border-[var(--border)]"><td class="p-2 text-[var(--text)]">Equity (plug)</td>' + years.map((_, i) => '<td class="text-right p-2 text-[var(--text)]">' + cell(propertyAtCost + closingCash[i] - schedule[i].closingBalance) + '</td>').join('') + '</tr>',
+      ].join('');
+      document.getElementById('balance-table').innerHTML = thead + '<tbody>' + body + '</tbody>';
+    }
+
+    function renderGrants() {
+      document.getElementById('grants-cards').innerHTML = grantsData.map(g =>
+        '<div class="border border-[var(--border)] rounded-xl p-4 bg-[var(--card)] shadow-sm hover:shadow transition"><h4 class="font-bold text-[var(--text)]">' + g.name + '</h4><p class="text-sm mt-1 text-[var(--text-muted)]">' + g.amount + ' · ' + g.eligibility + '</p><p class="text-xs mt-1 text-[var(--text-muted)]">When: ' + g.when + '</p><a href="' + g.link + '" target="_blank" rel="noopener" class="inline-block mt-2 text-sm text-[var(--accent)] underline hover:no-underline">Apply / Info</a></div>'
+      ).join('');
+    }
+
+    function toggleTimelineTask(phaseIndex, taskIndex) {
+      const key = phaseIndex + '-' + taskIndex;
+      const done = getTimelineDone();
+      const cb = document.getElementById('timeline-cb-' + key);
+      const row = document.getElementById('timeline-row-' + key);
+      if (cb && row) {
+        done[key] = cb.checked;
+        setTimelineDone(done);
+        row.classList.toggle('timeline-task-done', cb.checked);
+        if (row.querySelector('label')) row.querySelector('label').classList.toggle('line-through', cb.checked);
+      }
+    }
+
+    function renderTimeline() {
+      const done = getTimelineDone();
+      const filter = getPlanFilter();
+      const groups = filter === 'all' ? planGroups : planGroups.filter(g => g.theme === filter);
+      document.getElementById('timeline-phases').innerHTML = groups.map((group, gi) => {
+        const pi = planGroups.indexOf(group);
+        const tasksHtml = group.tasks.map((t, ti) => {
+          const key = pi + '-' + ti;
+          const isDone = !!done[key];
+          const when = (typeof t === 'object' && t.when) ? t.when : '';
+          const label = (typeof t === 'object' && t.label) ? t.label : String(t);
+          const link = (typeof t === 'object' && t.link) ? t.link : null;
+          const labelHtml = label + (link ? ' <a href="' + link + '" target="_blank" rel="noopener" class="text-[var(--accent)] underline hover:no-underline">Where to go</a>' : '');
+          return '<li id="timeline-row-' + key + '" class="flex items-start gap-3 py-2 px-3 rounded-lg hover:bg-[var(--pastel-lavender)]/40 transition ' + (isDone ? 'timeline-task-done' : '') + '">' +
+            '<input type="checkbox" id="timeline-cb-' + key + '" ' + (isDone ? 'checked' : '') + ' class="mt-1 rounded border-[var(--border)] text-[var(--accent)] focus:ring-[var(--accent)]" onchange="toggleTimelineTask(' + pi + ',' + ti + ')">' +
+            (when ? '<span class="shrink-0 w-24 text-xs font-medium text-[var(--text-muted)]">' + when + '</span>' : '') +
+            '<label for="timeline-cb-' + key + '" class="flex-1 text-sm text-[var(--text)] cursor-pointer ' + (isDone ? 'line-through text-[var(--text-muted)]' : '') + '">' + labelHtml + '</label>' +
+          '</li>';
+        }).join('');
+        return '<div class="relative pl-8 pb-8">' +
+          '<div class="absolute left-0 w-4 h-4 rounded-full bg-[var(--accent)] border-2 border-[var(--card)] shadow" style="margin-left: -7px;"></div>' +
+          '<h3 class="font-bold text-[var(--text)] serif text-lg mb-1">' + group.title + '</h3>' +
+          '<ul class="mt-2 space-y-0 text-sm border border-[var(--border)] rounded-xl overflow-hidden bg-[var(--card)] shadow-sm">' + tasksHtml + '</ul>' +
+        '</div>';
+      }).join('');
+    }
+
+    function init() {
+      var checklist = getStoredChecklist();
+      if (checklist && checklist.length >= 7) {
+        var timelineDone = getTimelineDone();
+        for (var i = 0; i < 7; i++) { if (checklist[i] && checklist[i].done) timelineDone['0-' + i] = true; }
+        setTimelineDone(timelineDone);
+      }
+      renderAcquisition();
+      renderCapex();
+      renderPL();
+      renderCashFlow();
+      renderBalanceSheet();
+      renderGrants();
+      setFinancialFilter(getStoredFinancialFilter());
+      setPlanFilter(getPlanFilter());
+      switchView('overview');
+    }
+    document.addEventListener('DOMContentLoaded', init);
+  </script>
+</body>
+</html>
