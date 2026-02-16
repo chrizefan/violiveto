@@ -96,7 +96,7 @@
       <div class="rounded-xl border border-[var(--border)] bg-[var(--card)] shadow-sm p-5">
         <h3 class="text-lg font-bold text-[var(--text)] serif mb-3">Property & land</h3>
         <p class="text-sm text-[var(--text)] mb-3"><strong>Address:</strong> Podere Cerreto 7, Località Cerreto, Castel Viscardo (TR), Umbria.</p>
-        <p class="text-sm text-[var(--text-muted)] mb-3">Approximately 24 hectares; built area ~530 m² (main house + annex). Main house: two A/2 cadastral units (144 m² + 216 m²), 7 bedrooms, 7 bathrooms — configured for 4 guest units and owner residence. Annex: 140 m², Category C/4 (warehouse), conversion to residential by seller.</p>
+        <p class="text-sm text-[var(--text-muted)] mb-3">Approximately 24 hectares; built area ~530 m² (main house + annex). Main house: two A/2 cadastral units (144 m² + 216 m²), 7 bedrooms, 7 bathrooms — seven luxury en-suite units (4 guest units and owner residence). Annex: 140 m², Category C/4 (warehouse), conversion to residential by seller. Agriculture: saffron target 3.5 kg by 2030; lavender as second crop (high-margin oil).</p>
         <div class="overflow-x-auto mb-3">
           <table class="w-full text-sm border-collapse">
             <thead><tr class="bg-[var(--pastel-lavender)]"><th class="text-left p-2 border border-[var(--border)]">Category</th><th class="text-left p-2 border border-[var(--border)]">Usage</th><th class="text-right p-2 border border-[var(--border)]">Area (m²)</th></tr></thead>
@@ -114,16 +114,22 @@
 
       <div class="rounded-xl border border-[var(--border)] bg-[var(--card)] shadow-sm p-5">
         <h3 class="text-lg font-bold text-[var(--text)] serif mb-3">Immigration & residency</h3>
-        <p class="text-sm text-[var(--text-muted)] mb-3">As EU citizens (Romania/Greece), you have freedom of movement. To establish residency and optimise tax position:</p>
+        <p class="text-sm text-[var(--text-muted)] mb-3">Husband (Romanian/EU): enter Italy freely; within 8 days notify police (<em>Dichiarazione di presenza</em>); after 90 days register at <em>Anagrafe</em> (Comune di Castel Viscardo). Proof of self-sufficiency required. Wife (non-EU): <em>Coesione Familiare</em> — apply for <strong>Carta di Soggiorno di familiare di un cittadino dell'Unione</strong> (valid 5 years); needs transcribed marriage certificate, proof of cohabitation, and minimum family income ~<strong>€11,000</strong>; grants right to work and run the agriturismo.</p>
         <ul class="list-disc list-inside text-sm text-[var(--text)] space-y-1 mb-3">
-          <li><strong>Codice Fiscale</strong> — required before contract and bank account</li>
+          <li><strong>Codice Fiscale</strong> — required before contract and bank account (both)</li>
           <li><strong>Physical domicile</strong> — e.g. lease at property pre-close (proof for residency)</li>
-          <li><strong>Anagrafe registration</strong> — within 90 days of arrival (Comune di Castel Viscardo)</li>
-          <li><strong>Financial self-sufficiency</strong> — evidence of funds (~€12k/year for couple)</li>
+          <li><strong>Anagrafe registration</strong> — within 90 days of arrival</li>
           <li><strong>Health insurance</strong> — valid in Italy until SSN via agricultural business</li>
           <li><strong>18-month rule (Prima Casa):</strong> Move residency to Castel Viscardo within 18 months of purchase to qualify for 2% (vs 9%) registration tax; clawback + 30% penalty if missed.</li>
         </ul>
         <p class="text-sm text-[var(--text-muted)]">See <button type="button" onclick="switchView('research')" class="text-[var(--accent)] underline hover:no-underline">Research</button> and Master Plan for full checklists and links.</p>
+      </div>
+
+      <div class="rounded-xl border border-[var(--border)] bg-[var(--card)] shadow-sm p-5">
+        <h3 class="text-lg font-bold text-[var(--text)] serif mb-3">Business architecture</h3>
+        <p class="text-sm text-[var(--text)] mb-2"><strong>Pillar 1 — Agriturismo Violiveto (SSA):</strong> <em>Società Semplice Agricola</em> (both owners; wife runs it). IAP certification gives 100% tax exemption on agricultural sales and 25% taxable base for hospitality revenue.</p>
+        <p class="text-sm text-[var(--text)] mb-2"><strong>Pillar 2 — Events & Experience (SRL):</strong> Italian limited company (Husband). Manages weddings and corporate retreats; keeps high-margin hospitality under the 50% prevalenza cap for the farm's tax status.</p>
+        <p class="text-sm text-[var(--text-muted)]"><strong>Pillar 3 — AI consulting & trading (Estonian OÜ):</strong> e-Residency company; Estonia taxes only distributed profits (22% in 2026). <em>Esterovestizione</em> warning: if effective management is in Italy, the OÜ may be deemed Italian tax resident. Safer option for consulting income in Italy: keep under €85k and use <em>Regime Forfettario</em> (5–15%).</p>
       </div>
 
       <div class="rounded-xl border border-[var(--border)] bg-[var(--card)] shadow-sm p-5">
@@ -163,6 +169,11 @@
             <h3 class="font-bold text-[var(--text)] serif text-lg">Purchase Structure Research</h3>
             <p class="text-sm text-[var(--text-muted)] mt-2">Prima Casa (whole property vs residential unit, two-unit hurdle), protecting non-agricultural income, purchasing structure analysis and wealth preservation for the Castel Viscardo acquisition.</p>
             <span class="inline-block mt-3 text-sm text-[var(--accent)] font-medium">purchase_strucuture_research.md →</span>
+          </button>
+          <button type="button" onclick="openResearchDoc('details.md')" class="block border border-[var(--border)] rounded-xl p-5 bg-[var(--card)] shadow-sm hover:shadow hover:border-[var(--accent)]/40 transition text-left cursor-pointer">
+            <h3 class="font-bold text-[var(--text)] serif text-lg">Master Business Plan</h3>
+            <p class="text-sm text-[var(--text-muted)] mt-2">Definitive master file: diversified agriculture (saffron, lavender), property revitalization and renovation line-items, budget pool options, three-pillar business architecture (SSA, Events SRL, Estonian OÜ), immigration (EU + non-EU spouse), Master Action Timeline 2025–2027.</p>
+            <span class="inline-block mt-3 text-sm text-[var(--accent)] font-medium">details.md →</span>
           </button>
         </div>
       </div>
@@ -223,7 +234,8 @@
 
       <div id="financial-capex" class="financial-block space-y-6">
         <h3 class="text-xl font-bold text-[var(--text)] serif">Capital expenditure (revitalization & wellness)</h3>
-        <p class="text-sm text-[var(--text-muted)]">Luxury wellness positioning: pool &amp; spa (sauna, cold plunge), outdoor gym, sun room pergola, outdoor kitchen. Total €531,000 (Comprehensive Strategic Financial Analysis, Table 2).</p>
+        <p class="text-sm text-[var(--text-muted)]">Luxury wellness positioning: pool &amp; spa (sauna, cold plunge), outdoor gym, sun room pergola, outdoor kitchen. Total €531,000 (Comprehensive Strategic Financial Analysis, Table 2). Line-item benchmarks (plumbing per <em>punto acqua</em>, electrical per <em>punto luce</em>, kitchen, bathroom, flooring, painting, roofing, structural): see Master Business Plan (<button type="button" onclick="switchView('research'); openResearchDoc('details.md');" class="text-[var(--accent)] underline hover:no-underline">details.md</button>).</p>
+        <p class="text-sm text-[var(--text-muted)]"><strong>Budget pool alternatives</strong> (vs premium above): Pebble finish €5k–15k (15–20 yr); high-end vinyl liner €1.2k–3.8k (10–15 yr); salt-water conversion €1k–3k. See <button type="button" onclick="switchView('research'); openResearchDoc('details.md');" class="text-[var(--accent)] underline hover:no-underline">details.md</button>.</p>
         <div class="overflow-x-auto rounded-xl border border-[var(--border)] bg-[var(--card)] shadow-sm">
           <table class="w-full text-sm border-collapse">
             <thead>
@@ -316,12 +328,13 @@
         theme: 'immigration',
         title: 'Immigration & Residency',
         tasks: [
-          { when: 'Feb–Mar', label: 'Codice Fiscale (before June)', link: 'https://www.anagrafenazionale.interno.it/servizi-ai-cittadini-europei-eng/' },
-          { when: 'May', label: 'Establish domicile (e.g. rent ground floor Podere Cerreto pre-close; lease as proof)', link: null },
+          { when: 'Feb–Mar', label: 'Codice Fiscale for both (before contract)', link: 'https://www.anagrafenazionale.interno.it/servizi-ai-cittadini-europei-eng/' },
+          { when: 'Within 8 days', label: 'Husband (EU): Dichiarazione di presenza (notify local police)', link: null },
           { when: 'June W4', label: 'Within 90 days of arrival: register at Anagrafe (Comune di Castel Viscardo)', link: 'https://yourwaytoitaly.it/en/articles/certificate-of-registration-registry-office-for-eu-citizens' },
+          { when: 'Arrival', label: 'Wife (non-EU): Apply for Carta di Soggiorno (Coesione Familiare)—marriage cert, cohabitation, ~€11k family income', link: null },
           { when: 'Feb–Jun', label: 'Proof of financial self-sufficiency (~€12k/year for couple)', link: null },
           { when: 'Feb–May', label: 'Health insurance valid in Italy (until SSN via agricultural business)', link: null },
-          { when: 'Mar', label: "If wife's Greek citizenship not ready: Register wedding certificate with Romanian consulate (e.g. Montreal)", link: 'https://montreal.mae.ro/en' },
+          { when: 'Mar', label: 'Transcribe marriage certificate at Romanian consulate (e.g. Montreal) if wife non-EU', link: 'https://montreal.mae.ro/en' },
           { when: 'By Dec 2027', label: 'Move residency to Castel Viscardo within 18 months of purchase (Prima Casa)', link: 'https://www.agenziaentrate.gov.it/portale/l-acquisto-con-i-benefici-prima-casa' },
         ],
       },
@@ -340,6 +353,7 @@
           { when: 'Feb–Mar', label: 'Codice Fiscale (before move)' },
           { when: 'Feb–Mar', label: 'Renew passports' },
           { when: 'Mar', label: "Register wedding certificate at Romanian consulate (Montreal) if wife's Greek citizenship not ready" },
+          { when: 'Mar', label: 'Husband: pick up e-Residency card (Ottawa Embassy); incorporate Estonian OÜ for AI consulting/trading' },
           { when: 'Mar', label: 'Book FCL (8–12 weeks); book early' },
           { when: 'Mar–Apr', label: 'Move inventory: list what goes in luggage vs leave-behind (names and dates for family/friends to bring)' },
           { when: 'Apr', label: 'Research vehicle lease or long-term rental in Italy' },
@@ -355,7 +369,7 @@
           { when: 'June 1', label: 'Walkthrough with surveyor (annex conversion)' },
           { when: 'June W2', label: 'Agricultural consultant meeting (IAP course, ATECO)' },
           { when: 'June 15', label: 'Rogito; €800k via forex broker' },
-          { when: 'June W4', label: 'Anagrafe registration (both; wife as spouse if Romanian route)' },
+          { when: 'June W4', label: 'Anagrafe registration (Husband); Wife: apply for EU Family Residence Card (Coesione Familiare)' },
           { when: 'June W4', label: 'Codice Fiscale resident update' },
           { when: 'June', label: 'Wise for CAD→EUR as needed (ongoing)' },
         ],
@@ -364,12 +378,12 @@
         theme: 'post-move',
         title: 'Phase C — Post-move (July–Dec 2026)',
         tasks: [
-          { when: 'July', label: 'Partita IVA' },
+          { when: 'July', label: 'Open Italian Partita IVAs' },
           { when: 'July', label: 'Apply Young Farmers (SRE01)' },
-          { when: 'July–Aug', label: 'Pool renovation: permits' },
+          { when: 'July–Aug', label: 'Pool renovation: permits (or budget-friendly resurfacing—see details.md)' },
           { when: 'July–Sep', label: 'Pool renovation: salt, cover, deck' },
-          { when: 'July–Dec', label: 'IAP course (e.g. 150 h)' },
-          { when: 'Oct', label: 'First saffron planting' },
+          { when: 'July–Dec', label: 'Wife: IAP certification course (e.g. 150 h)' },
+          { when: 'Oct', label: 'First planting of saffron corms' },
           { when: 'Jul–Dec', label: 'Furnish guest units' },
           { when: 'Sep–Oct', label: 'Website for agriturismo' },
           { when: 'Oct–Nov', label: 'Open April 2027 bookings' },
@@ -383,6 +397,7 @@
           { when: 'Dec 2027', label: 'Confirm 18-month residency in Castel Viscardo (Prima Casa) on track' },
           { when: '2027', label: 'IAP certification' },
           { when: '2027', label: 'SCIA' },
+          { when: 'Year 2 (2026)', label: 'Distill first lavender oil; launch Violiveto Experience (SRL) for wedding bookings' },
           { when: '2027+', label: 'Ramp occupancy and ag revenue' },
           { when: 'As bandi open', label: 'Apply for SRD03 (agriturismo renovation)' },
           { when: 'As bandi open', label: 'Apply for SRA29 (organic)' },
